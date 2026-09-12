@@ -187,7 +187,7 @@ main(int argc, char **argv)
 	if (strcmp(cmd_name, "gst_loopback") == 0)
 		pipe_proc = "decodebin ! autovideoconvert ! "
 			"video/x-raw,format=I420 ! identity drop-allocation=true !"
-			"v4l2sink device=/dev/video1 sync=false";
+			"v4l2sink device=/dev/video0 sync=false";
 	else
 		pipe_proc = " decodebin ! autovideosink sync=false";
 
@@ -243,7 +243,7 @@ main(int argc, char **argv)
 
 	gst_element_set_state(src.pipeline, GST_STATE_PLAYING);
 	pthread_create(&thr, NULL, keywait, &src);
-	
+
 	res = thetauvc_get_stream_ctrl_format_size(devh,
 			THETAUVC_MODE_UHD_2997, &ctrl);
 	src.dwFrameInterval = ctrl.dwFrameInterval;
