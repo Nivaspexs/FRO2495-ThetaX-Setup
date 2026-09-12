@@ -89,7 +89,7 @@ gst_src_init(int *argc, char ***argv, char *pipeline)
 	GstBus *bus;
 	char pipeline_str[MAX_PIPELINE_LEN];
 
-	snprintf(pipeline_str, MAX_PIPELINE_LEN, "appsrc name=ap ! queue ! h264parse ! queue ! %s ", pipeline);
+	snprintf(pipeline_str, MAX_PIPELINE_LEN, "appsrc name=ap ! queue max-size-buffers=1 max-size-time=0 max-size-bytes=0 leaky=downstream ! h264parse ! queue max-size-buffers=1 max-size-time=0 max-size-bytes=0 leaky=downstream ! %s ", pipeline);
 
 	gst_init(argc, argv);
 	src.timer = g_timer_new();
@@ -108,6 +108,17 @@ gst_src_init(int *argc, char ***argv, char *pipeline)
 		"stream-format", G_TYPE_STRING, "byte-stream",
 		"profile", G_TYPE_STRING, "constrained-baseline", NULL);
 	gst_app_src_set_caps(GST_APP_SRC(src.appsrc), caps);
+	gst_caps_unref(caps);
+
+	g_object_set(G_OBJECT(src.appsrc),
+		"is-live", TRUE,
+		"format", GST_FORMAT_TIME,
+		"do-timestamp", TRUE,
+		"min-latency", (gint64)0,
+		"max-latency", (gint64)0,
+		"max-buffers", (guint64)1,
+		"leaky-type", 2,
+		NULL);
 
 	bus = gst_pipeline_get_bus(GST_PIPELINE(src.pipeline));
 	src.bus_watch_id = gst_bus_add_watch(bus, gst_bus_cb, NULL);
@@ -152,11 +163,10 @@ cb(uvc_frame_t *frame, void *ptr)
 	memcpy(map.data, frame->data, frame->data_bytes);
 	gst_buffer_unmap(buffer, &map);
 
-	g_signal_emit_by_name(s->appsrc, "push-buffer", buffer, &ret);
-	gst_buffer_unref(buffer);
+	ret = gst_app_src_push_buffer(GST_APP_SRC(s->appsrc), buffer);
 
 	if (ret != GST_FLOW_OK)
-		fprintf(stderr, "pushbuffer errorn");
+		fprintf(stderr, "pushbuffer error\n");
 	return;
 }
 
@@ -185,11 +195,11 @@ main(int argc, char **argv)
 		cmd_name++;
 
 	if (strcmp(cmd_name, "gst_loopback") == 0)
-		pipe_proc = "decodebin ! autovideoconvert ! "
+		pipe_proc = "avdec_h264 max-threads=1 ! autovideoconvert ! "
 			"video/x-raw,format=I420 ! identity drop-allocation=true !"
 			"v4l2sink device=/dev/video0 sync=false";
 	else
-		pipe_proc = " decodebin ! autovideosink sync=false";
+		pipe_proc = "avdec_h264 max-threads=1 ! autovideosink sync=false";
 
 	if (!gst_src_init(&argc, &argv, pipe_proc))
 		return -1;
@@ -244,8 +254,14 @@ main(int argc, char **argv)
 	gst_element_set_state(src.pipeline, GST_STATE_PLAYING);
 	pthread_create(&thr, NULL, keywait, &src);
 
+	/*
+	 * THETAUVC_MODE es para definir el preset de transmisión, hay 2:
+		* THETAUVC_MODE_UHD_2997 es 4K (3840x1920) a 29fps
+		* THETAUVC_MODE_FHD_2997 es para FHD (1920x960) a 29fps
+	 */
+
 	res = thetauvc_get_stream_ctrl_format_size(devh,
-			THETAUVC_MODE_UHD_2997, &ctrl);
+			THETAUVC_MODE_FHD_2997, &ctrl);
 	src.dwFrameInterval = ctrl.dwFrameInterval;
 	src.dwClockFrequency = ctrl.dwClockFrequency;
 
