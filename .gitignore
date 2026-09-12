@@ -1,0 +1,28 @@
+# Compilación C/C++
+*.o
+*.a
+*.so
+
+# Directorios de compilación CMake (solo para libuvc-theta)
+libuvc-theta/build/
+
+# Archivos temporales y de configuración de sistema
+.DS_Store
+*~
+
+# Binarios de la aplicación de ejemplo
+libuvc-theta-sample/gst/gst_loopback
+libuvc-theta-sample/gst/gst_viewer
+
+# Módulos del Kernel (v4l2loopback compilado)
+v4l2loopback/*.ko
+v4l2loopback/*.mod.c
+v4l2loopback/*.mod.o
+v4l2loopback/*.mod
+v4l2loopback/*.symvers
+v4l2loopback/*.order
+v4l2loopback/.tmp_versions/
+v4l2loopback/modules.builtin
+v4l2loopback/modules.order
+v4l2loopback/v4l2loopback
+v4l2loopback/.*.cmd
