@@ -198,6 +198,17 @@ main(int argc, char **argv)
 		pipe_proc = "avdec_h264 max-threads=1 ! autovideoconvert ! "
 			"video/x-raw,format=I420 ! identity drop-allocation=true !"
 			"v4l2sink device=/dev/video0 sync=false";
+	else if (strcmp(cmd_name, "gst_mediamtx") == 0)
+		/* 
+		 * MODO MEDIAMTX (H.264 Puro - Latencia Ultra Baja)
+		 * Envía el video directamente al servidor sin decodificar.
+		 * 
+		 * CONFIGURACIÓN DE RED:
+		 * Para modificar la IP o el puerto del servidor MediaMTX, cambia la URL en 'location='.
+		 * Formato: rtsp://[IP_DEL_SERVIDOR]:[PUERTO]/[NOMBRE_DEL_STREAM]
+		 * Ejemplo: location=rtsp://192.168.1.50:8554/theta
+		 */
+		pipe_proc = "rtspclientsink location=rtsp://127.0.0.1:8554/theta protocols=tcp";
 	else
 		pipe_proc = "avdec_h264 max-threads=1 ! autovideosink sync=false";
 
