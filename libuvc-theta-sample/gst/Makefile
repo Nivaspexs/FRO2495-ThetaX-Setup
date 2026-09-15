@@ -37,7 +37,7 @@ LDFLAGS += $(shell pkg-config --libs $(PKG_CONFIG_LIB)) ../../libuvc-theta/build
 
 SRCS = gst_viewer.c thetauvc.c
 OBJS := $(SRCS:.c=.o)
-EXES = gst_viewer gst_loopback
+EXES = gst_viewer gst_loopback gst_mediamtx
 
 all: $(EXES)
 
@@ -45,6 +45,9 @@ gst_viewer: $(OBJS)
 	$(CC) $(OBJS) -o $@  $(LDFLAGS) -pthread
 
 gst_loopback: gst_viewer
+	ln -sf $< $@
+
+gst_mediamtx: gst_viewer
 	ln -sf $< $@
 
 clean:
