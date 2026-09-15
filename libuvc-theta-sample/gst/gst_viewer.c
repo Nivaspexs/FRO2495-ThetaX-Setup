@@ -208,7 +208,7 @@ main(int argc, char **argv)
 		 * Formato: rtsp://[IP_DEL_SERVIDOR]:[PUERTO]/[NOMBRE_DEL_STREAM]
 		 * Ejemplo: location=rtsp://192.168.1.50:8554/theta
 		 */
-		pipe_proc = "rtspclientsink location=rtsp://127.0.0.1:8554/theta protocols=tcp";
+		pipe_proc = "rtph264pay config-interval=1 pt=96 ! rtspclientsink location=rtsp://127.0.0.1:8554/theta";
 	else
 		pipe_proc = "avdec_h264 max-threads=1 ! autovideosink sync=false";
 
