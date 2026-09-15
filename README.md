@@ -1,3 +1,8 @@
+## Pendientes 
+- Agregar API USB al repo (para controlar la cámara desde el USB)
+- Arreglar la guía de paso incluyendo librerias faltantes
+- Generar un script automático
+
 ##  Instalación en un Nuevo PC (Paso a Paso)
 
 Sigue estos pasos en orden para compilar los drivers y usar la cámara en un ordenador nuevo. Probado en sistemas basados en Debian/Ubuntu.
