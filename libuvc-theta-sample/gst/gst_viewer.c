@@ -89,7 +89,7 @@ gst_src_init(int *argc, char ***argv, char *pipeline)
 	GstBus *bus;
 	char pipeline_str[MAX_PIPELINE_LEN];
 
-	snprintf(pipeline_str, MAX_PIPELINE_LEN, "appsrc name=ap ! queue max-size-buffers=1 max-size-time=0 max-size-bytes=0 leaky=downstream ! h264parse config-interval=-1 ! queue max-size-buffers=1 max-size-time=0 max-size-bytes=0 leaky=downstream ! %s ", pipeline);
+	snprintf(pipeline_str, MAX_PIPELINE_LEN, "appsrc name=ap ! queue max-size-buffers=1 max-size-time=0 max-size-bytes=0 leaky=downstream ! h264parse ! queue max-size-buffers=1 max-size-time=0 max-size-bytes=0 leaky=downstream ! %s ", pipeline);
 
 	gst_init(argc, argv);
 	src.timer = g_timer_new();
@@ -105,7 +105,8 @@ gst_src_init(int *argc, char ***argv, char *pipeline)
 
 	caps = gst_caps_new_simple("video/x-h264",
 		"framerate", GST_TYPE_FRACTION, 30000, 1001,
-		"stream-format", G_TYPE_STRING, "byte-stream", NULL);
+		"stream-format", G_TYPE_STRING, "byte-stream",
+		"profile", G_TYPE_STRING, "high", NULL);
 	gst_app_src_set_caps(GST_APP_SRC(src.appsrc), caps);
 	gst_caps_unref(caps);
 
